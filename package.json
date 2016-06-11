@@ -21,7 +21,7 @@
   "scripts": {
     "build": "browserify --debug --transform babelify src/app.jsx --outfile ./bundle.js",
     "watch": "watchify -d -t babelify src/app.js -o ./bundle.js -v",
-    "test": "./node_modules/.bin/mocha --compilers js:babel-register --recursive src/test/"
+    "test": "./node_modules/.bin/mocha -R nyan --compilers js:babel-register --recursive src/test/"
   },
   "config": {},
   "Dependencies": {},

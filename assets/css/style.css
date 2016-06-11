@@ -28,12 +28,16 @@ body {
 }
 
 .description {
-    padding-left: 150px;
+    text-align: center;
     font-size: 20px;
 }
 
-.description.status {
-    padding-left: 60px;
+span.npc {
+    color: red;
+}
+
+span.you {
+    color: green;
 }
 
 .field {

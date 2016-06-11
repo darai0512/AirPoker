@@ -130,10 +130,10 @@ var AirPokerUi = React.createClass({
         );
       } else if (this.state.phase === 'rank') {
         return (
-          <div className="rank">set&nbsp;
-            <Rank rankFlag={this.rankFlag}>Max</Rank>
-            <Rank rankFlag={this.rankFlag}>Missing</Rank>
-          &nbsp;Rank</div>
+          <div className="rank">Would you like to make MAX rank?<br/>
+            <Rank rankFlag={this.rankFlag}>Yes</Rank>
+            <Rank rankFlag={this.rankFlag}>No</Rank>
+          </div>
         );
       } else if (this.state.phase === 'bet') {
         return airPoker.actionCandidates('You').map(function(action) {
@@ -153,13 +153,13 @@ var AirPokerUi = React.createClass({
     };
     return (
       <div className="airPoker">
-        <div className="description status npc">NPC remaining Air: {this.state.status[model.name].remainingAir}, Bet Air: {this.state.status[model.name].betAir}, Action: {this.state.status[model.name].action || " -"}</div>
+        <div className="description"><span className="npc">NPC</span> Air: {this.state.status[model.name].remainingAir}, Bet: {this.state.status[model.name].betAir}, Action: {this.state.status[model.name].action || " -"}</div>
         <div className="hand npc">{npcCardNode}</div>
         <button className={this.state.phase === 'card' ? "field" : "field card"} disabled>{this.state.field[model.name]}</button>
-          <div className="description">{guideNode()}</div>
+          <div className="description guide">{guideNode()}</div>
         <button className={this.state.phase === 'card' ? "field" : "field card"} disabled>{this.state.field['You']}</button>
         <div className="hand you">{yourCardNode}</div>
-        <div className="description status you">Your remaining Air: {this.state.status['You'].remainingAir}, Bet Air: {this.state.status['You'].betAir}, Action: {this.state.status['You'].action || " -"}</div>
+        <div className="description"><span className="you">You</span> Air: {this.state.status['You'].remainingAir}, Bet: {this.state.status['You'].betAir}, Action: {this.state.status['You'].action || " -"}</div>
       </div>
     );
   }
