@@ -12,7 +12,7 @@ export default class ModelInterface {
     throw new Error('Implement me. Please set card & rankFlag.');
     return this.card_;
   }
-  bet(oCard, oAction, oBetTips, oHasTips, hasTips) { // 'o' means opponent.
+  bet(oCard, oAction, oBetTips, oHasTips, hasTips) { // 'o' means opponent. @todo hasTipsは総和からの差で出せる
     throw new Error('Implement me. maxRaise is a half of total betTips');
     return {action: this.action_, tip: this.betTips_};
   }

@@ -1,3 +1,7 @@
+# except for gh-pages
+bundle.min.js
+
+# common
 *.swp
 # Logs
 logs

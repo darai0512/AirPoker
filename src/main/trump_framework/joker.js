@@ -6,11 +6,12 @@ export default class Joker extends Card {
     super(null, null);
   }
 
-  /**
+  /*
    * turnInto
    *  Turns this joker into a Card obj
-   * @member int number
-   * @member str suit
+   *
+   * @param {number} number - a key of number
+   * @param {string} suit - a key of Suits
    */
   turnInto(number, suit) {
     this.setNumber_(number);

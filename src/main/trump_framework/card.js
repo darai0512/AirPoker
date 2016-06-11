@@ -9,11 +9,11 @@ export const SUITS = {
 
 export const NUMBERS = [
   1,
-  2, 
+  2,
   3,
   4,
   5,
-  6, 
+  6,
   7,
   8,
   9,
@@ -28,23 +28,23 @@ export class Card {
    * Creates new card instance by suit and number.
    * Suit is at either one of SPADE,DIAMOND,CLUB or HEART.
    *
-   * @param int number
-   * @param str suit = <Suits_key>
+   * @param {number} number - a key of number
+   * @param {string} suit - a key of Suits
    */
   constructor(number, suit) {
-    this.number;
-    this.suit;
-    setNumber_(number);
-    setSuit_(suit);
+    this.number = null;
+    this.suit = null;
+    this.setNumber_(number);
+    this.setSuit_(suit);
   }
 
-  setNumber_(number){
+  setNumber_(number) {
     if (NUMBERS.indexOf(number) > -1) {
       this.number = number;
     }
   }
 
-  setSuit_(suit){
+  setSuit_(suit) {
     if (Object.keys(SUITS).indexOf(suit) > -1) {
       this.suit = SUITS[suit];
     }

@@ -1,5 +1,5 @@
 'use strict';
-import ModelInterface from './airpokermodel.js'
+import ModelInterface from './airpokermodel.js';
 
 export default class Model extends ModelInterface {
   constructor() {
@@ -10,7 +10,7 @@ export default class Model extends ModelInterface {
     return this.card_;
   }
   bet(oCard, oAction, oBetTips, oHasTips, hasTips) {
-    if (oAction == null || oAction === 'check') {
+    if (oAction === null || oAction === 'check') {
       this.action_ = 'check';
     } else {
       this.action_ = 'call';

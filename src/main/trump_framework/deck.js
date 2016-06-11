@@ -71,7 +71,7 @@ export default class Deck {
     this.topCardIndex_ = null;
   }
 
-  getBack(cards) {
+  back(cards) {
     if (Array.isArray(cards)) {
       this.deck_.concat(cards);
     } else {

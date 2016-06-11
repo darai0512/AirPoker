@@ -2,7 +2,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 import AirPoker from './airpoker.js';
-import Model from './model/darai0512.js'; //require('./model/darai0512.js');
+import Model from './model/darai0512.js'; // require('./model/darai0512.js');
 
 let model = new Model();
 const players = ['You', model.name];

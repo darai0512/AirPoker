@@ -46,7 +46,7 @@ export default class AirPocker extends Rule {
     // set remainingCards
     NUMBERS.forEach((number) => {
       this.remainingCards[number] = [];
-      //this.remainingCards[number] = Object.values(SUITS);
+      // this.remainingCards[number] = Object.values(SUITS);
       Object.keys(SUITS).forEach((k) => {
         this.remainingCards[number].push(SUITS[k]);
       }, this);
@@ -220,31 +220,31 @@ export default class AirPocker extends Rule {
     return Math.floor(totalTips / num);
   }
 
-  /*****************************
+  /**
    * judge
    *   Compares their Poker rank.
    *   If both of ranks are the same, compare a highest number of the hand.
    *   Ace(1) is highest. Two(2) is lowest.
    *   If they are the same, draw. (Suit and the Second Number are not considered.)
    *
-   *   @return obj {winner: PlayerName, rank: rankName, cards: cards} <- round winner
-   *****************************/
+   * @return {Object} {winner: PlayerName, rank: rankName, cards: cards} - round winner
+   **/
   judge() {
     let result = {rank: null, cards: null, winner: null};
     let totalTip = 0;
     let maxPoint = 0;
-    Object.keys(this.players_).forEach((name) => {
+    Object.keys(this.players_).forEach(name => {
       let player = this.players_[name];
       let playerMax = {rank: null, cards: [], point: 0};
       if (player.maxRankFlag) {
         let rankCandidates = this.getCombinations_(this.field[name]);
-        for (let i=0;i < rankCandidates.length;i++) {
+        for (let i = 0; i < rankCandidates.length; i++) {
           let suit = null;
           let numbers = rankCandidates[i];
           let {name: rank, highCardPoint: point} = this.rankByNumbers_(numbers);
-          if (rank === 'Straight'
-            || rank === 'HighCard'
-            || rank === 'RoyalStraight') {
+          if (rank === 'Straight' ||
+            rank === 'HighCard' ||
+            rank === 'RoyalStraight') {
             if (suit = this.getFlashSuit_(numbers)) {
               rank = rank === 'HighCard' ? 'Flush' : rank + 'Flush';
             }
@@ -253,14 +253,14 @@ export default class AirPocker extends Rule {
           if (point > playerMax.point) {
             playerMax.rank = rank;
             playerMax.point = point;
-            numbers.forEach((number) => {
+            numbers.forEach(number => {
               playerMax.cards.push(new Card(number, suit));
             });
           }
         }
         // @todo Suits管理 - 上から順に使う & disasterはSuitをずらせないかcheck
-        for (let i = 0;i < playerMax.cards.length;i++) {
-          playerMax.cards[i] = useCard_(playerMax.cards[i]);
+        for (let i = 0; i < playerMax.cards.length; i++) {
+          playerMax.cards[i] = this.useCard_(playerMax.cards[i]);
         }
       }
       if (maxPoint < playerMax.point) {
@@ -419,8 +419,8 @@ export default class AirPocker extends Rule {
    * useCard_
    *   Reduces card from this.remainingCards and sets a suit if the suit is undefined.
    *
-   *   @param  obj card
-   *   @return obj card
+   * @param {Object} card - cardオブジェクト
+   * @retrun {Object} card - cardオブジェクト
    */
   useCard_(card) {
     if (typeof card.suit === 'undefined') {
