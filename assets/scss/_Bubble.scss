@@ -1,0 +1,69 @@
+.item {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+    box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 0.6) inset;
+    -webkit-box-shadow: 0px 0px 15px 0px rgba(255, 255, 255, 0.6) inset;
+    position: relative;
+}
+.item:after {
+    content: "";
+    display: block;
+    width: 20%;
+    height: 20%;
+    border-radius: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    position: absolute;
+    right: 15%;
+    top: 15%;
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
+    transform: rotateZ(45deg) scaleY(0.8);
+    -webkit-transform: rotateZ(45deg) scaleY(0.8);
+}
+
+@keyframes shake {
+    0% { transform: translateX(10px); }
+    50% { transform: translateX(-10px); }
+    100% { transform: translateX(10px); }
+}
+@-webkit-keyframes shake {
+    0% { -webkit-transform: translateX(10px); }
+    50% { -webkit-transform: translateX(-10px); }
+    100% { -webkit-transform: translateX(10px); }
+}
+
+@keyframes move {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-1000px); opacity: 0; }
+}
+@-webkit-keyframes move {
+    0% { -webkit-transform: translateY(0px); }
+    100% { -webkit-transform: translateY(-1000px); opacity: 0; }
+}
+
+$bubbleKind: 50;
+@for $i from 0 through $bubbleKind {
+    $time: $i*0.2;
+    $scale: $i*0.1;
+
+    .shake#{$i * 1} {
+        animation: shake ($time+2)+s ease 0s infinite normal;
+        -webkit-animation: shake ($time+2)+s ease 0s infinite normal;
+    }
+    .move#{$i * 1}  {
+        animation: move ($time+5)+s ease-out $time+s infinite normal;
+        -webkit-animation: move ($time+5)+s ease-out $time+s infinite normal;
+
+        position: absolute;
+        bottom: -10%;
+    }
+    .pos#{$i * 1}  {
+        left: percentage($i/$bubbleKind);
+    }
+    .scale#{$i * 1}  {
+        transform: scale($scale);
+        -webkit-transform: scale($scale);
+    }
+}

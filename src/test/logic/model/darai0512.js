@@ -1,5 +1,5 @@
 'use strict'
-import Model from '../../main/model/darai0512.js';
+import Model from '../../../main/logic/model/darai0512.js';
 let model = new Model();
 let should = require('chai').should();
 

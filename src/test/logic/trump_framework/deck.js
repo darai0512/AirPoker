@@ -1,4 +1,4 @@
-import Deck from "../../main/trump_framework/deck.js";
+import Deck from "../../../main/logic/trump_framework/deck.js";
 let deck = new Deck({'deckNum': 1, 'jockerNum': 0});
 let should = require('chai').should();
 

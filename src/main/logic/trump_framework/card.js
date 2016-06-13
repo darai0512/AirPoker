@@ -1,7 +1,7 @@
 'use strict';
 
 export const SUITS = {
-  HEART: Symbol('heart'),
+  HEART: Symbol.for('heart'),
   DIAMOND: Symbol.for('diamond'),
   SPADE: Symbol.for('spade'),
   CLUB: Symbol.for('club')
