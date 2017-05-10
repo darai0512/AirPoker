@@ -6,9 +6,9 @@ var vinylBuffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
 var webserver = require('gulp-webserver');
 var sass = require('gulp-sass');
- 
+
 gulp.task('browserify', function() {
-  browserify('./src/main/airpoker.jsx', { debug: true })
+  browserify('./src/main/app.js', { debug: true })
     .transform(babelify, {presets: ["react", "es2016"]})
     .bundle()
     .on("error", function (err) { console.log("Error : " + err.message); })
@@ -16,7 +16,7 @@ gulp.task('browserify', function() {
     .pipe(vinylBuffer())
     .pipe(uglify({preserveComments: 'some'}))
     .on("error", function (err) { console.log("Error : " + err.message); })
-    .pipe(gulp.dest('./'))
+    .pipe(gulp.dest('./assets/js'))
 });
 
 gulp.task('sass', function() {
@@ -26,19 +26,18 @@ gulp.task('sass', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch(["src/**/*.jsx", "src/**/*.js", "!src/main/logic/trump_framework/*.js"], ['browserify']);
-  gulp.watch('assets/scss/*.scss', ['sass']);
+  gulp.watch(["src/main/**/*.jsx", "src/main/**/*.js"], ['browserify']);
+  gulp.watch(["assets/scss/*.scss"], ['sass']);
 });
 
-//gulp.task('webserver', ['browserify'], function() {
 gulp.task('webserver', function() {
   gulp.src('.')
     .pipe(webserver({
-      host: 'localhost'
-    , port: 8000
-    , livereload: true
+      host: 'localhost',
+      port: 8000,
+      livereload: true
     // http://localhost:8000/api -> http://localhost:9000
-    /*, proxies: [
+    /* , proxies: [
         {
           source: '/api'
         , target: 'http://localhost:9000'
@@ -48,4 +47,4 @@ gulp.task('webserver', function() {
   );
 });
 
-gulp.task('default', ['browserify', 'watch', 'webserver']);
+gulp.task('default', ['browserify', 'sass', 'watch', 'webserver']);

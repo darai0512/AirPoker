@@ -1,5 +1,6 @@
 # except for gh-pages
-bundle.min.js
+assets/js/bundle.min.js
+assets/css/style.css
 
 # common
 *.swp

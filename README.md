@@ -1,15 +1,17 @@
-## code terms
-
-http://cou929.nu/data/google_javascript_style_guide/
-
+# Air Poker
 ## Rule
 
-http://royal2627.ldblog.jp/archives/48002529.html
+https://github.com/darai0512/AirPoker/wiki/Game-Rule
 
-## UI operation
+## Reference
 
-1. select NPC Model
-2. select card
-3. select either Max or Missing Rank (Not informed to your opponent)
-4. bet (required entry fee every round necessarily)
-5. repeat 2-4 until either player's air become none
+原作のルールは[こちら](http://royal2627.ldblog.jp/archives/48002529.html)を参考にさせていただきました。
+
+## Qiita
+
+投稿予定です。
+
+## Pull Request
+
+model(=NPC)はinterfaceを公開していますので、自作実装可能です。  
+あなたからのプルリクをお待ちしております！
