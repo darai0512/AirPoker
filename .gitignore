@@ -1,13 +1,8 @@
-# except for gh-pages
-assets/js/bundle.min.js
-assets/css/style.css
-
 # common
 *.swp
+
 # Logs
-logs
 *.log
-npm-debug.log*
 
 # Runtime data
 pids

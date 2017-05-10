@@ -1,5 +1,5 @@
 {
-  "name": "air_poker",
+  "name": "AirPoker",
   "version": "0.0.1",
   "description": "Originates in Japanese comic of 'Usokui'.",
   "keywords": [
@@ -21,19 +21,18 @@
   "scripts": {
     "build": "browserify --debug --transform babelify src/app.jsx --outfile ./bundle.js",
     "watch": "watchify -d -t babelify src/app.js -o ./bundle.js -v",
-    "test": "./node_modules/.bin/mocha -R nyan --compilers js:babel-register --recursive src/test/"
+    "test": "mocha -R nyan --compilers js:babel-register --recursive src/test/"
   },
   "config": {},
-  "Dependencies": {},
+  "dependencies": {},
   "devDependencies": {
     "babel-preset-es2016": "^6.0.11",
     "babel-preset-react": "^6.5.0",
     "babelify": "^7.3.0",
     "browserify": "^10.2.4",
     "chai": "^3.5.0",
-    "eslint": "^2.7.0",
-    "eslint-config-defaults": "^9.0.0",
-    "eslint-config-google": "^0.4.0",
+    "eslint": "^3.19.0",
+    "eslint-config-google": "^0.7.1",
     "gulp": "3.9.1",
     "gulp-sass": "~2.0.1",
     "gulp-uglify": "1.5.3",
