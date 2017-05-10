@@ -42,7 +42,7 @@ export default React.createClass({
         <div>
           <p>{guideWinner}</p>
           <p>{'Round' + this.state.round}</p>
-          <p>Select a card or Check <a href="https://github.com/darai0512/AirPoker/wiki/Game-Rule" target="_blank">RULE</a></p>
+          <p>Select a card or Check <a href="https://github.com/darai0512/AirPoker/wiki/AirPoker's-Rule" target="_blank">RULE</a></p>
         </div>
       );
     } else if (this.state.phase === 'bet') {

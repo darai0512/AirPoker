@@ -1,6 +1,6 @@
-var React = require('react');
+const React = require('react');
 import AirPoker from './logic/airpoker.js';
-import Model from './logic/model/darai0512.js'; // require('./model/darai0512.js');
+import Model from './logic/model/darai0512.js';
 import AirPokerUi from './components/airpoker.jsx';
 
 let model = new Model();
