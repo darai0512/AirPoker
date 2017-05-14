@@ -42,6 +42,6 @@
     "watchify": "~3.9.0"
   },
   "private": true,
-  "//": "os: []",
+  "//": "gulp.spritesmith: ^6.2.1",
   "cpu": []
 }

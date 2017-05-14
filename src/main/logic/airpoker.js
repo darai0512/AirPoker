@@ -422,7 +422,7 @@ export default class AirPocker extends Rule {
    * @param {Object} card - cardオブジェクト
    * @retrun {Object} card - cardオブジェクト
    */
-  useCard_(numbers, suit) {
+  useCard_(card) {
     if (typeof card.suit === 'undefined') {
       card.suit = SUITS[this.remainingCards[card.number].shift()];
     } else {

@@ -24,9 +24,8 @@ class Bet extends React.Component {
     if (this.props.children === 'raise') {
       const options = [];
       const max = this.props.maxRaise;
-      for (let i = 1; i <= max; ++i) {
+      for (let i = 1; i <= max; ++i)
         options.push(<option value={i} key={'raise' + i}>{i}</option>);
-      }
       let value = this.state.raiseValue;
       if (this.submitFlag) {
         value = max;
