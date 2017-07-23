@@ -1,5 +1,4 @@
 'use strict';
-// @todo 1 roundの勝利に最適化されていてgame勝利に最適化されていない
 export default class ModelInterface {
   constructor(modelerName) {
     this.name = modelerName;

@@ -232,8 +232,8 @@ export default class AirPocker extends Rule {
     let player;
     this.betTurn.forEach(name => {
       player = {rank: null, numbers: [], suit: null, point: 0};
-      if (this.players_[name].maxRankFlag) {
-        let rankCandidates = this.getCombinations_(this.field[name]);
+      if (this.players_[name].maxRankFlag) { // maxRankFlagは三回まで、random[rankCandidates.length]
+        let rankCandidates = this.getCombinations_(this.field[name]); // combCandidates, ifの上へ
         for (let i = 0; i < rankCandidates.length; i++) {
           // @todo suitの余りがあるのか確認
           let suit = null;
