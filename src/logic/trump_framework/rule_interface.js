@@ -11,7 +11,7 @@ export default class Rule {
     this.players_ = [];
     for (let i=0; i < setPlayers.length; i++) {
       // @todo :array index order by bet turn
-      let setPlayer = setPlayers[i];
+      const setPlayer = setPlayers[i];
       this.players_[setPlayer.name] = new Player(setPlayer.name, setPlayer.options);
       this.initHand_(setPlayer.name, initHandNum);
     }

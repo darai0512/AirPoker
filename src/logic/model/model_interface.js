@@ -1,4 +1,4 @@
-'use strict';
+
 export default class ModelInterface {
   constructor(modelerName) {
     this.name = modelerName;

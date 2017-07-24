@@ -1,3 +1,4 @@
+// deprecated
 const gulp = require('gulp');
 const browserify = require('browserify');
 const babelify = require('babelify');
@@ -7,7 +8,7 @@ const webserver = require('gulp-webserver');
 const sass = require('gulp-sass');
 
 gulp.task('browserify', () => {
-  browserify('./src/main/app.js', { debug: true })
+  browserify('./src/entry.js', { debug: true })
     .transform(babelify)
     .bundle()
     .on('error', err => console.log(`Error : ${err.message}`))
@@ -16,17 +17,16 @@ gulp.task('browserify', () => {
 
   return gulp.src('./assets/js/bundle.min.js')
     .pipe(uglify({preserveComments: 'some'})) // this option remains licence comment
+    .on('error', err => console.log(err))
     .pipe(gulp.dest('./assets/js/'));
 });
 
-gulp.task('sass', () => {
-  return gulp.src("assets/scss/*.scss")
+gulp.task('sass', () => gulp.src("assets/scss/*.scss")
     .pipe(sass())
-    .pipe(gulp.dest("assets/css"));
-});
+    .pipe(gulp.dest("assets/css")));
 
 gulp.task('watch', () => {
-  gulp.watch(["src/main/**/*.jsx", "src/main/**/*.js"], ['browserify']);
+  gulp.watch(["src/**/*.js"], ['browserify']);
   gulp.watch(["assets/scss/*.scss"], ['sass']);
 });
 

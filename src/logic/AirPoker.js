@@ -1,6 +1,6 @@
-'use strict';
-import Rule from './trump_framework/rule.js';
-import {Card, SUITS, NUMBERS} from "./trump_framework/card.js";
+
+import Rule from './trump_framework/rule_interface';
+import {Card, SUITS, NUMBERS} from './trump_framework/card';
 
 /*
  * YourPoint = RankPoint + HighCard (+ SuitOrder <- in the future)
@@ -66,7 +66,7 @@ export default class AirPocker extends Rule {
       let sumup = 0;
       // Sums up five card numbers.
       for (let x = 0; x < 5; x++) {
-        let card = this.deck_.draw();
+        const card = this.deck_.draw();
         sumup += Number(card.number);
       }
       this.players_[playerName].receive(sumup);
@@ -91,7 +91,7 @@ export default class AirPocker extends Rule {
    *   @return {Object} status
    */
   getStatus() {
-    let status = {};
+    const status = {};
     Object.keys(this.players_).forEach(name => {
       status[name] = {remainingAir: this.players_[name].hasTips,
         betAir: this.players_[name].betTips,
@@ -138,8 +138,20 @@ export default class AirPocker extends Rule {
    *   @return str pre-playerName
    */
   prePlayer(playerName) {
-    let index = this.betTurn.indexOf(playerName);
+    const index = this.betTurn.indexOf(playerName);
     return index > 0 ? this.betTurn[index - 1] : this.betTurn[this.betTurn.length - 1];
+  }
+
+  /*
+   * nextPlayer
+   *   Gets next-acting player name
+   *
+   *   @param  str playerName
+   *   @return str next-playerName
+   */
+  nextPlayer(playerName) {
+    const index = this.betTurn.indexOf(playerName);
+    return index === this.betTurn.length - 1 ? this.betTurn[0] : this.betTurn[index + 1];
   }
 
   /*
@@ -148,9 +160,9 @@ export default class AirPocker extends Rule {
    *   @return {Array} actions
    */
   actionCandidates(playerName) {
-    let actions = ['raise', 'call', 'check', 'fold'];
-    let status = this.getStatus();
-    let prePlayer = this.prePlayer(playerName);
+    const actions = ['raise', 'call', 'check', 'fold'];
+    const status = this.getStatus();
+    const prePlayer = this.prePlayer(playerName);
     if (status[playerName].action === 'check' ||
       status[prePlayer].action === 'raise') {
       actions.splice(actions.indexOf('check'), 1);
@@ -167,8 +179,6 @@ export default class AirPocker extends Rule {
 
   /*
    * bet
-   *   @todo this.actionCandidates()でcheck, throw削除
-   *
    *   @param  {String}  playerName
    *   @param  {String}  action
    *   @param  {Number}  tip
@@ -177,6 +187,8 @@ export default class AirPocker extends Rule {
   bet(playerName, action, tip) {
     let nextBet = true;
     const player = this.players_[playerName];
+    if (!this.actionCandidates(playerName).includes(action))
+      action = 'fold'; // @TODO error?
     const preAction = player.action;
     player.action = action;
     if (action === 'raise') {
@@ -192,12 +204,10 @@ export default class AirPocker extends Rule {
       player.hasTips -= opponent.betTips - player.betTips;
       player.betTips = opponent.betTips;
     } else if (action === 'check') {
-      if (preAction == 'check') {
+      if (preAction == 'check')
         throw new Error('Not Allowed to put the value');
-      }
-      if( this.players_.every((player, i) => player.action === 'fold') ) {
+      if( this.players_.every((player, i) => player.action === 'fold') )
         nextBet = false;
-      }
     } else if (action === 'fold') {
       nextBet = false;
     } else {
@@ -208,7 +218,7 @@ export default class AirPocker extends Rule {
 
   getMaxRaise() {
     let totalTips = 0;
-    let candidates = [];
+    const candidates = [];
     this.betTurn.forEach(name => {
       totalTips += this.players_[name].betTips;
       candidates.push(this.players_[name].hasTips);
@@ -227,23 +237,23 @@ export default class AirPocker extends Rule {
    * @return {Object} {winner: PlayerName, rank: rankName, cards: cards} - round winner
    **/
   judge() {
-    let result = {rank: {}, cards: {}, winner: ''};
+    const result = {rank: {}, cards: {}, winner: ''};
     let maxPoint = 0;
     let player;
     this.betTurn.forEach(name => {
       player = {rank: null, numbers: [], suit: null, point: 0};
       if (this.players_[name].maxRankFlag) { // maxRankFlagは三回まで、random[rankCandidates.length]
-        let rankCandidates = this.getCombinations_(this.field[name]); // combCandidates, ifの上へ
+        const rankCandidates = this.getCombinations_(this.field[name]); // combCandidates, ifの上へ
         for (let i = 0; i < rankCandidates.length; i++) {
           // @todo suitの余りがあるのか確認
           let suit = null;
-          let numbers = rankCandidates[i];
+          const numbers = rankCandidates[i];
           let {name: rank, highCardPoint: point} = this.rankByNumbers_(numbers);
           if (rank === 'Straight' ||
             rank === 'HighCard' ||
             rank === 'RoyalStraight') {
             if (suit = this.getFlashSuit_(numbers)) {
-              rank = rank === 'HighCard' ? 'Flush' : rank + 'Flush';
+              rank = rank === 'HighCard' ? 'Flush' : `${rank  }Flush`;
             }
           }
           point += RANK_POINTS[rank];
@@ -262,7 +272,7 @@ export default class AirPocker extends Rule {
         result.winner = name;
       }
     });
-    //{cards: result.cards, overlap: result.disaster} = this.useCard_(result.cards);
+    // {cards: result.cards, overlap: result.disaster} = this.useCard_(result.cards);
     return result;
   }
 
@@ -292,13 +302,13 @@ export default class AirPocker extends Rule {
     const combinations = [];
     if (num > 5 && num < 65) {
       for (let a = 1; a < num / 5; a++) {
-        let max2 = num - a;
+        const max2 = num - a;
         for (let b = a; b <= max2 / 4; b++) {
-          let max3 = max2 - b;
+          const max3 = max2 - b;
           for (let c = b; c <= max3 / 3; c++) {
-            let max4 = max3 - c;
+            const max4 = max3 - c;
             for (let d = c; d <= max4 / 2; d++) {
-              let e = max4 - d;
+              const e = max4 - d;
               if (e <= 13) {
                 combinations.push([a, b, c, d, e]);
               }
@@ -316,7 +326,7 @@ export default class AirPocker extends Rule {
    *   @return obj {highCardPoint: int, name: str}
    */
   rankByNumbers_(numbers) {
-    let rank = {highCardPoint: 0, name: null};
+    const rank = {highCardPoint: 0, name: null};
     numbers.sort((a, b) => a - b);
     if (this.isStraight_(numbers)) {
       rank.name = 'Straight';
@@ -334,7 +344,7 @@ export default class AirPocker extends Rule {
       switch (Object.keys(pairs).length) {
         case 2:
           // 4-1 or 3-2
-          for (let n in pairs) {
+          for (const n in pairs) {
             if (pairs[n] === 4) {
               rank.name = 'FourCard';
               rank.highCardPoint = +n === 1 ? 14 : +n;
@@ -348,7 +358,7 @@ export default class AirPocker extends Rule {
           break;
         case 3:
           // 3-1-1 or 2-2-1
-          for (let n in pairs) {
+          for (const n in pairs) {
             if (pairs[n] === 3) {
               rank.name = 'ThreeCard';
               rank.highCardPoint = +n === 1 ? 14 : +n;
@@ -362,7 +372,7 @@ export default class AirPocker extends Rule {
         case 4:
           // 2-1-1-1
           rank.name = 'OnePair';
-          for (let n in pairs) {
+          for (const n in pairs) {
             if (pairs[n] === 2) {
               rank.highCardPoint = +n;
               break;
@@ -388,9 +398,7 @@ export default class AirPocker extends Rule {
     let setSuit;
     if (!Object.keys(SUITS).some(suit => {
       setSuit = SUITS[suit];
-      return numbers.every(number => {
-        return this.remainingCards[number].indexOf(setSuit) > -1;
-      });
+      return numbers.every(number => this.remainingCards[number].indexOf(setSuit) > -1);
     }, this)) {
       setSuit = null;
     }
@@ -426,7 +434,7 @@ export default class AirPocker extends Rule {
     if (typeof card.suit === 'undefined') {
       card.suit = SUITS[this.remainingCards[card.number].shift()];
     } else {
-      let remainingSuits = this.remainingCards[card.number];
+      const remainingSuits = this.remainingCards[card.number];
       remainingSuits.splice(remainingSuits.indexOf(card.suit), 1);
     }
     return cards;

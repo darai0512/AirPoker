@@ -1,4 +1,4 @@
-'use strict';
+
 
 import {Card, SUITS, NUMBERS} from "./card.js";
 import Joker from "./joker.js";
@@ -7,7 +7,7 @@ import Joker from "./joker.js";
  * 'deck' array is not shuffled. When drawing, the card is selected at random every time. It is because this is client side program.
  */
 export default class Deck {
-  constructor( {deckNum: deckNum, jockerNum: jockerNum} ) {
+  constructor( {deckNum, jockerNum} ) {
     this.deck_ = [];
     for (let i = 0; i < deckNum; i++) {
       NUMBERS.forEach(function(num) {
@@ -16,7 +16,7 @@ export default class Deck {
         }, this);
       }, this.deck_);
     }
-    for (var j = 0; j < jockerNum; j++) {
+    for (let j = 0; j < jockerNum; j++) {
       this.deck_.push(new Joker());
     }
     this.shuffle(); // 要素全部宣言しないとだめ? this.topCardIndex_ = null;
@@ -30,7 +30,7 @@ export default class Deck {
    */
   draw(card) {
     let indexNum;
-    if (typeof card == 'undefined') {
+    if (typeof card === 'undefined') {
       indexNum = this.topCardIndex_ || Math.floor(Math.random() * this.deck_.length);
     } else {
       const cardStr = JSON.stringify(card);
@@ -41,7 +41,7 @@ export default class Deck {
         }
       }
     }
-    let drawCard = this.deck_[indexNum];
+    const drawCard = this.deck_[indexNum];
     this.remove_(indexNum);
     this.topCardIndex_ = null;
     return drawCard;

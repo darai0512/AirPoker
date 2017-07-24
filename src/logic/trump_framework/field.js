@@ -1,4 +1,4 @@
-'use strict';
+
 /*
  * This class has only minimal functions.
  */
@@ -9,7 +9,7 @@ export default class Field {
   }
 
   set(playerName, card) {
-    this.pool_.push({player: playerName, card: card});
+    this.pool_.push({player: playerName, card});
   }
 
   view() {
@@ -18,7 +18,7 @@ export default class Field {
 
   // @todo 引数cardの時も実装する this.pool_.splice(i, 1)
   return() {
-    let cards = [];
+    const cards = [];
     for (let i=0;i < this.pool_.length;i++) {
       cards.push(this.pool_[i].card);
     }  

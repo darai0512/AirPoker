@@ -1,4 +1,4 @@
-'use strict';
+
 import {Card} from "./card.js";
 
 export default class Joker extends Card {

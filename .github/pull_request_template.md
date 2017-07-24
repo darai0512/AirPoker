@@ -2,7 +2,7 @@
 
 _Please make sure to review and check all of these items:_
 
-- [ ] Does `npm test && npm npm run lint` pass with this change?
+- [ ] Does `npm test && npm run lint` pass with this change?
 - [ ] Is the new or changed code fully tested?
 - [ ] Is a documentation update included (if this change modifies existing APIs, or introduces new ones)?
 

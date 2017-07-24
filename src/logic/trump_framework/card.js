@@ -1,4 +1,4 @@
-'use strict';
+
 
 export const SUITS = {
   HEART: Symbol.for('heart'),

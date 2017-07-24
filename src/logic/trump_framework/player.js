@@ -1,4 +1,4 @@
-'use strict';
+
 export default class Player {
   // This class doesn't manage the property of "turn".
   constructor(name, options) {
@@ -29,12 +29,12 @@ export default class Player {
    */
   send(card) {
     let indexNum;
-    if (typeof card == 'undefined') {
+    if (typeof card === 'undefined') {
       indexNum = Math.floor(Math.random() * this.hand_.length);
     } else {
       indexNum = this.hand_.indexOf(card);
     }
-    this.hand_.splice(indexNum, 1); //trash
+    this.hand_.splice(indexNum, 1); // trash
     /*
     this.hand_.some(function(v, i){
       if (v==hand) hands.splice(i,1);
