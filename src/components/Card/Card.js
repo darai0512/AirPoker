@@ -12,7 +12,7 @@ class Card extends React.Component {
   render() {
     if (this.props.phase !== 'card' || this.props.card === '?') {
       return (
-        <button className="card" disabled>? </button>
+        <button className="card" disabled>{this.props.card}</button>
       );
     } 
     return (
