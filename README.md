@@ -1,7 +1,7 @@
 # Air Poker
 ## Rule
 
-https://github.com/darai0512/AirPoker/wiki/Game-Rule
+https://github.com/darai0512/AirPoker/wiki/Rule_japanese
 
 ## Reference
 
@@ -9,5 +9,4 @@ https://github.com/darai0512/AirPoker/wiki/Game-Rule
 
 ## Pull Request
 
-model(=NPC)はinterfaceを公開していますので、自作実装可能です。  
-あなたからのプルリクをお待ちしております！
+You can publish your NPC by extending ModelInterface class !
