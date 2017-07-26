@@ -1,4 +1,3 @@
-
 export default class Player {
   // This class doesn't manage the property of "turn".
   constructor(name, options) {
@@ -7,9 +6,9 @@ export default class Player {
     this.name = name;
     // optional params
     if (typeof options === 'object') {
-      Object.keys(options).forEach(function (key) {
+      for (const key of Object.keys(options)) {
         this[key] = options[key];
-      }, this);
+      }
     }
   }
 

@@ -1,57 +1,75 @@
 import React from 'react';
 import Card from '../Card/Card';
+import Hand from '../Hand/Hand';
 import BetButton from '../Bet/BetButton';
 import Raise from '../Bet/Raise';
 import Bubble from '../Bubble/Bubble';
 
+// const airLostTime = 5;
+
+// @TOOD for multi-player
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     const {airPoker} = props;
     this.state = {
       hand: airPoker.findCandidates('You'),
-      status: airPoker.getStatus(),
+      remainingAir: airPoker.getRemainingAir(),
       round: airPoker.round,
       field: airPoker.field,
-      phase: 'card', // or 'bet' or 'result' or 'gameset' (or 'enter')
+      phase: 'card', // or 'bet' or 'gameset' (or 'enter')
       bubbleNum: 25,
       result: {winner: null, rank: null, cards: null} // round winner or game winner
     };
   }
+
   componentDidMount() {
-    // timer
+  /*
+    this.timerID = setInterval(() => {
+      const {remainingAir} = this.state;
+      for (const name of Object.keys(remainingAir))
+        remainingAir -= 1;
+      this.setState({remainingAir});
+    }, airLostTime * 1000);
+   */ 
   }
-  shouldComponentUpdate(nextProps, nextState) {
-    Object.keys(nextState.status).forEach((player) => {
-      if (nextState.status[player].remainingAir < 0) { // @todo 多人数対応
-        nextState.phase = 'gameset';
-        nextState.bubbleNum = 50;
-        nextState.result.winner = this.props.airPoker.prePlayer(player);
-      }
-    });
-    return true;
+
+  componentWillUnmount() {
+    // clearInterval(this.timerID);
   }
+
+  componentWillUpdate(nextProps, nextState) {
+    const {airPoker} = this.props;
+    if (this.state.phase === 'card' && nextState.phase === 'bet') {
+      if (airPoker.initBet() !== 'You')
+        this.npcBet(null, 0);
+    }
+  }
+
   navigate() {
     const {model, airPoker} = this.props;
     if(this.state.phase === 'card') {
       let guideWinner = '';
       if (this.state.result.winner != null) {
-        guideWinner = `Round${  --this.state.round  }: Your Rank is ${ 
-          this.state.result.rank.You  }, NPC Rank is ${ 
-          this.state.result.rank[model.name]}`;
+        guideWinner = `Round${this.state.round - 1}: You[${ 
+          this.state.result.rank.You}] vs NPC[${ 
+          this.state.result.rank[model.name]}] => ${this.state.result.winner} win!`;
       }
       return (
         <div>
           <p>{guideWinner}</p>
           <p>{`Round${  this.state.round}`}</p>
-          <p>Select a card or Check <a href="https://github.com/darai0512/AirPoker/wiki/AirPoker's-Rule" target="_blank">RULE</a></p>
+          <p>Select a card or Check <a href="https://github.com/darai0512/AirPoker/wiki/Rule_japanese" target="_blank">RULE</a></p>
         </div>
       );
     } else if (this.state.phase === 'bet') {
+      const maxRaise = airPoker.getMaxRaise();
+      const s = airPoker.getStatus();
+      const npcBetAir = s[model.name].betAir;
       const betNode = airPoker.actionCandidates('You').map((action) => {
         if (action === 'raise') {
           return (
-            <Raise bet={this.bet.bind(this)} key={action} maxRaise={airPoker.getMaxRaise()} />
+            <Raise bet={this.bet.bind(this)} key={action} maxRaise={maxRaise} npcBet={npcBetAir}/>
           );
         }
         return (
@@ -60,82 +78,83 @@ export default class App extends React.Component {
       });
       return (
         <div>
-          <div className="status">NPC's Bet: {this.state.status[model.name].betAir}, Action: {this.state.status[model.name].action || " -"}</div>
+          <div className="status">NPC's Bet: {npcBetAir}, Action: {s[model.name].action || " -"}</div>
           {betNode}
-          <div className="status">Your Bet: {this.state.status.You.betAir}, Action: {this.state.status.You.action || " -"}</div>
+          <div className="status">Your Bet: {s.You.betAir}, Action: {s.You.action || " -"}</div>
         </div>
       );
-    } else if (this.state.phase === 'result') {
-
-    } else if (this.state.phase === 'gameset' &&
-              this.state.result.winner === 'You') {
-      return (<p className="gameset">You win! You're alive</p>);
     } else if (this.state.phase === 'gameset') {
-      return (<p className="gameset">Game Over, you're drowned...</p>);
+      let msg;
+      if (this.state.result.winner === 'You')
+        msg = "You win! You're alive";
+      else
+        msg = "Game Over, you're drowned...";
+      return (<p className="gameset">{msg}</p>);
     }
   }
+
   setCard(card) {
     const {airPoker, model} = this.props;
-    airPoker.setField('You', card, true);
+    airPoker.setField('You', card);
     const modelCard = model.setCard(airPoker.findCandidates(model.name), airPoker.remainingCards);
-    airPoker.setField(model.name, modelCard, model.maxRankFlag);
-
-    // for bet phase
-    airPoker.initBet();
-    for (let i=0;i < airPoker.betTurn.length;i++) {
-      const betPlayer = airPoker.betTurn[i];
-      if (betPlayer === 'You') {
-        break;
-      } else {
-        const prePlayer = airPoker.prePlayer(betPlayer);
-        const status = airPoker.getStatus();
-        const bet = this.props.model.bet(airPoker.field[prePlayer]
-                                      ,status[prePlayer].action
-                                      ,status[prePlayer].betAir
-                                      ,status[prePlayer].remainingAir
-                                      ,status[betPlayer].remainingAir );
-        if (!airPoker.actionCandidates(betPlayer).includes(bet.action)) {
-          bet.action = 'check';
-        }
-        airPoker.bet(betPlayer, bet.action, bet.tip);
-      }
-    }
+    airPoker.setField(model.name, modelCard);
 
     this.setState({
       field: airPoker.field,
       hand: airPoker.findCandidates('You'),
       phase: 'bet',
-      status: airPoker.getStatus()
     });
   }
 
+  npcBet(oAction, oBetTips) {
+    const {airPoker, model} = this.props;
+    const remainingAir = airPoker.getRemainingAir();
+    const {action, tip} = model.bet(
+      this.state.field.You
+      ,oAction
+      ,oBetTips
+      ,remainingAir.You
+      ,remainingAir[model.name]
+    );
+    return airPoker.bet(model.name, action, tip);
+  }
+
   bet(action, air = 0) {
-    const airPoker = this.props.airPoker;
-    let nextBet = false;
-    if (airPoker.bet('You', action, air)) {
-      const npc = airPoker.nextPlayer('You');
-      const status = airPoker.getStatus();
-      const {npcAction, npcAir} = this.props.model.bet(
-        airPoker.field.You
-        ,action
-        ,status.You.betAir
-        ,status.You.remainingAir
-        ,status[npc].remainingAir);
-      nextBet = airPoker.bet(npc, npcAction, npcAir);
-    }
+    const {airPoker, model} = this.props;
+    let nextBet = airPoker.bet('You', action, air);
+    if (nextBet)
+      nextBet = this.npcBet(action, air);
     if (nextBet) {
       this.setState({
-        status: airPoker.getStatus()
+        remainingAir: airPoker.getRemainingAir()
       });
     } else {
-      const roundResult = airPoker.judge();
-      airPoker.getTip(roundResult.winner);
-      airPoker.nextRound();
+      const result = airPoker.judge();
+      airPoker.getTip(result.winner);
+      const remainingAir = airPoker.getRemainingAir();
+      let phase = 'card';
+      if (this.state.round === 5) {
+        phase = 'gameset';
+        result.winner = remainingAir.You < remainingAir[model.name] ?
+          model.name : 'You'; 
+      } else {
+        for (const name of Object.keys(remainingAir)) {
+          if (remainingAir[name] <= this.state.round + 1) {
+            phase = 'gameset';
+            result.winner = name === 'You' ? model.name : 'You'; 
+          }
+        }
+      }
+      if (phase === 'gameset') {
+        // clearInterval(this.timerID);
+      } else
+        airPoker.nextRound();
       this.setState({
-        result: roundResult,
+        result,
         field: airPoker.field,
-        status: airPoker.getStatus(),
-        phase: 'card',
+        remainingAir,
+        phase,
+        bubbleNum: phase === 'gameset' ? 100 : this.state.bubbleNum,
         round: airPoker.round
       });
     }
@@ -143,8 +162,8 @@ export default class App extends React.Component {
 
   render() {
     const {model, airPoker} = this.props;
-    const yourCardNode = this.state.hand.map((card, i) =>  // @todo 要Object.assign([], this.state.hand)？/cardはchildrenに
-       (
+    const yourCardNode = this.state.hand.map((card, i) =>
+      (
          <Card card={card} phase={this.state.phase} setCard={this.setCard.bind(this)} key={`${i  }-${  card}`} />
       ));
     const npcCardNode = this.state.hand.map((v, i) => (
@@ -155,13 +174,13 @@ export default class App extends React.Component {
       bubbleNode.push(<Bubble key={`bubble-${  i}`} />);
     return (
       <div>
-        <div className="status"><span className="npc">NPC</span> Air: {this.state.status[model.name].remainingAir}</div>
+        <div className="status"><span className="npc">NPC</span> Air: {this.state.remainingAir[model.name]}</div>
         <div className="hand npc">{npcCardNode}</div>
         <button className={this.state.phase === 'card' ? "field" : "field card"} disabled>{this.state.field[model.name]}</button>
         <div className="guide">{this.navigate()}</div>
         <button className={this.state.phase === 'card' ? "field" : "field card"} disabled>{this.state.field.You}</button>
         <div className="hand you">{yourCardNode}</div>
-        <div className="status"><span className="you">You</span> Air: {this.state.status.You.remainingAir}</div>
+        <div className="status"><span className="you">You</span> Air: {this.state.remainingAir.You}</div>
         {bubbleNode}
       </div>
     );

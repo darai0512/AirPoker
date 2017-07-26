@@ -1,4 +1,3 @@
-
 import Model from '../../../main/logic/model/darai0512.js';
 
 const model = new Model();

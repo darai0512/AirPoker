@@ -10,9 +10,9 @@ class Raise extends React.Component {
 
   render() {
     const options = [];
-    const max = this.props.maxRaise;
-    for (let i = 1; i <= max; ++i)
-      options.push(<MenuItem value={i} key={`raise${i}`} primaryText={`${i} Air`} />);
+    const {maxRaise, npcBet} = this.props;
+    for (let i = 1; i <= maxRaise; ++i)
+      options.push(<MenuItem value={i} key={`raise-${i}`} primaryText={`${npcBet} + ${i} Air`} />);
 
     const _handleChange = (e, index, value) => this.setState({value}); // = e.target.value
     const _handleSubmit = (e) => this.props.bet('raise', parseInt(this.state.value, 10));

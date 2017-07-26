@@ -1,4 +1,3 @@
-
 import Rule from './trump_framework/rule_interface';
 import {Card, SUITS, NUMBERS} from './trump_framework/card';
 
@@ -30,7 +29,7 @@ export default class AirPocker extends Rule {
     for (let i = 0; i < players.length; i++) {
       setPlayers.push({
         name: players[i],
-        options: {hasTips: 25, betTips: 0, action: null, maxRankFlag: true}
+        options: {hasTips: 25, betTips: 0, action: null}
       });
       field[players[i]] = null;
     }
@@ -86,48 +85,62 @@ export default class AirPocker extends Rule {
 
   /**
    * getStatus
-   *   Gets players' bet status
+   *   Gets players' bet status @TODO Deprecated
    *
    *   @return {Object} status
    */
   getStatus() {
     const status = {};
-    Object.keys(this.players_).forEach(name => {
-      status[name] = {remainingAir: this.players_[name].hasTips,
+    for (const name of Object.keys(this.players_)) {
+      status[name] = {
+        remainingAir: this.players_[name].hasTips,
         betAir: this.players_[name].betTips,
-        action: this.players_[name].action};
-    });
+        action: this.players_[name].action
+      };
+    }
     return status;
+  }
+
+  /**
+   * getRemainingAir
+   *   @TODO Deprecated
+   *
+   *   @return {Object} RemainingAir
+   */
+  getRemainingAir() {
+    const air = {};
+    for (const name of Object.keys(this.players_)) {
+      air[name] = this.players_[name].hasTips;
+    }
+    return air;
   }
 
   /*
    * setField
    *   @override
-   *   Sets card to field with that maxRankFlag.
+   *   Sets card to field.
    *
    *   @param  str playerName
    *   @param  int card
-   *   @param  boolean maxRankFlag
    */
-  setField(playerName, card, maxRankFlag) {
+  setField(playerName, card) {
     this.field[playerName] = this.players_[playerName].send(card);
-    this.players_[playerName].maxRankFlag = maxRankFlag;
   }
 
   /*
    * initBet
    *   Pays entry fee according to every round
    *
-   *   @return  void
+   *   @return {String} - firstBetPlayerName
    */
   initBet() {
-    let player;
-    Object.keys(this.players_).forEach(name => {
-      player = this.players_[name];
+    for (const name of Object.keys(this.players_)) {
+      const player = this.players_[name];
       player.hasTips -= this.round;
       player.betTips += this.round;
       player.action = null;
-    });
+    }
+    return this.betTurn[0];
   }
 
   /*
@@ -143,86 +156,63 @@ export default class AirPocker extends Rule {
   }
 
   /*
-   * nextPlayer
-   *   Gets next-acting player name
-   *
-   *   @param  str playerName
-   *   @return str next-playerName
-   */
-  nextPlayer(playerName) {
-    const index = this.betTurn.indexOf(playerName);
-    return index === this.betTurn.length - 1 ? this.betTurn[0] : this.betTurn[index + 1];
-  }
-
-  /*
    * actionCandidates
    *   @param  {String} playerName
    *   @return {Array} actions
    */
   actionCandidates(playerName) {
-    const actions = ['raise', 'call', 'check', 'fold'];
-    const status = this.getStatus();
-    const prePlayer = this.prePlayer(playerName);
-    if (status[playerName].action === 'check' ||
-      status[prePlayer].action === 'raise') {
-      actions.splice(actions.indexOf('check'), 1);
-    } else if (status[playerName].action === null &&
-      status[prePlayer].action === null) {
-      actions.splice(actions.indexOf('fold'), 1);
-      actions.splice(actions.indexOf('call'), 1);
-    }
-    if (this.getMaxRaise() === 0) {
-      actions.splice(actions.indexOf('raise'), 1);
-    }
+    let actions;
+    const action = this.players_[playerName].action;
+    const preAction = this.players_[this.prePlayer(playerName)].action;
+    if (action === null && (preAction === null || preAction === 'check'))
+      actions = ['raise', 'check'];
+    else if (preAction === 'raise')
+      actions = ['raise', 'call', 'fold'];
+    else
+      return [];
+    if (this.getMaxRaise() === 0)
+      return actions.filter((v) => v !== 'raise');
     return actions;
   }
 
   /*
    * bet
+   *   Checks bet
+   *   @TODO for multi-player (decide 'fold' rule) & Error (now, return true)
+   *
    *   @param  {String}  playerName
    *   @param  {String}  action
    *   @param  {Number}  tip
-   *   @return {Boolean} nextBet - true:go to next bet/false:end
+   *   @return {Boolean} - true: go to next bet, false: end
    */
-  bet(playerName, action, tip) {
-    let nextBet = true;
+  bet(playerName, action, tip = 0) {
+    const actions = this.actionCandidates(playerName);
+    if (!actions.includes(action))
+      action = actions[0];
+
     const player = this.players_[playerName];
-    if (!this.actionCandidates(playerName).includes(action))
-      action = 'fold'; // @TODO error?
-    const preAction = player.action;
+    const prePlayer = this.players_[this.prePlayer(playerName)];
     player.action = action;
-    if (action === 'raise') {
-      if (tip > this.getMaxRaise()) {
-        throw new Error('Not Allowed to put the value');
-      }
-      player.hasTips -= tip;
-      player.betTips += tip;
+    if (action === 'raise' && tip > 0 && tip <= this.getMaxRaise()) {
+      player.hasTips -= (prePlayer.betTips - player.betTips) + tip;
+      player.betTips = prePlayer.betTips + tip;
     } else if (action === 'call') {
-      const opponent = this.betTurn.indexOf(playerName) - 1 > -1
-                     ? this.players_[this.betTurn[this.betTurn.indexOf(playerName) - 1]]
-                     : this.players_[this.betTurn[this.betTurn.length - 1]];
-      player.hasTips -= opponent.betTips - player.betTips;
-      player.betTips = opponent.betTips;
-    } else if (action === 'check') {
-      if (preAction == 'check')
-        throw new Error('Not Allowed to put the value');
-      if( this.players_.every((player, i) => player.action === 'fold') )
-        nextBet = false;
-    } else if (action === 'fold') {
-      nextBet = false;
-    } else {
-      throw new Error('Not Allowed to put the value');
+      player.hasTips -= prePlayer.betTips - player.betTips;
+      player.betTips = prePlayer.betTips;
+      return false;
+    } else if (action === 'fold' || (action === 'check' && prePlayer.action === 'check')) {
+      return false;
     }
-    return nextBet;
+    return true;
   }
 
   getMaxRaise() {
     let totalTips = 0;
     const candidates = [];
-    this.betTurn.forEach(name => {
+    for (const name of this.betTurn) {
       totalTips += this.players_[name].betTips;
       candidates.push(this.players_[name].hasTips);
-    }, this);
+    }
     candidates.push(Math.floor(totalTips / this.betTurn.length));
     return Math.min.apply(null, candidates);
   }
@@ -233,36 +223,34 @@ export default class AirPocker extends Rule {
    *   If both of ranks are the same, compare a highest number of the hand.
    *   Ace(1) is highest. Two(2) is lowest.
    *   If they are the same, draw. (Suit and the Second Number are not considered.)
+   *   @TODO random[rankCandidates.length]
    *
    * @return {Object} {winner: PlayerName, rank: rankName, cards: cards} - round winner
    **/
   judge() {
     const result = {rank: {}, cards: {}, winner: ''};
     let maxPoint = 0;
-    let player;
-    this.betTurn.forEach(name => {
-      player = {rank: null, numbers: [], suit: null, point: 0};
-      if (this.players_[name].maxRankFlag) { // maxRankFlagは三回まで、random[rankCandidates.length]
-        const rankCandidates = this.getCombinations_(this.field[name]); // combCandidates, ifの上へ
-        for (let i = 0; i < rankCandidates.length; i++) {
-          // @todo suitの余りがあるのか確認
-          let suit = null;
-          const numbers = rankCandidates[i];
-          let {name: rank, highCardPoint: point} = this.rankByNumbers_(numbers);
-          if (rank === 'Straight' ||
-            rank === 'HighCard' ||
-            rank === 'RoyalStraight') {
-            if (suit = this.getFlashSuit_(numbers)) {
-              rank = rank === 'HighCard' ? 'Flush' : `${rank  }Flush`;
-            }
+    for (const name of this.betTurn) {
+      let player = {rank: null, numbers: [], suit: null, point: 0};
+      const rankCandidates = this.getCombinations_(this.field[name]); // combCandidates, ifの上へ
+      for (let i = 0; i < rankCandidates.length; i++) {
+        // @todo suitの余りがあるのか確認
+        let suit = null;
+        const numbers = rankCandidates[i];
+        let {name: rank, highCardPoint: point} = this.rankByNumbers_(numbers);
+        if (rank === 'Straight' ||
+          rank === 'HighCard' ||
+          rank === 'RoyalStraight') {
+          if (suit = this.getFlashSuit_(numbers)) {
+            rank = rank === 'HighCard' ? 'Flush' : `${rank  }Flush`;
           }
-          point += RANK_POINTS[rank];
-          if (point > player.point) {
-            player.rank = rank;
-            player.point = point;
-            player.numbers = numbers;
-            player.suit = suit;
-          }
+        }
+        point += RANK_POINTS[rank];
+        if (point > player.point) {
+          player.rank = rank;
+          player.point = point;
+          player.numbers = numbers;
+          player.suit = suit;
         }
       }
       result.rank[name] = player.rank;
@@ -271,7 +259,7 @@ export default class AirPocker extends Rule {
         maxPoint = player.point;
         result.winner = name;
       }
-    });
+    }
     // {cards: result.cards, overlap: result.disaster} = this.useCard_(result.cards);
     return result;
   }

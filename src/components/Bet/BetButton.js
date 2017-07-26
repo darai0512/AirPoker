@@ -8,8 +8,7 @@ class BetButton extends React.Component {
   }
 
   _handleSubmit(e) {
-    const action = e.target.innerText;
-    this.props.bet(action);
+    this.props.bet(this.props.label); // e.target.innerTextだと大文字
   }
 
   render() {
