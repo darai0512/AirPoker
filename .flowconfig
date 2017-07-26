@@ -1,0 +1,10 @@
+[ignore]
+bundle.js
+node_modules/*
+[include]
+
+[libs]
+declare.js
+[options]
+esproposal.class_instance_fields=enable
+[lints]
