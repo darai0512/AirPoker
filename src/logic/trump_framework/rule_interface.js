@@ -9,9 +9,7 @@ export default class Rule {
   constructor(setDeck, setPlayers, initHandNum) {
     this.deck_ = new Deck(setDeck);
     this.players_ = [];
-    for (let i=0; i < setPlayers.length; i++) {
-      // @todo :array index order by bet turn
-      const setPlayer = setPlayers[i];
+    for (const setPlayer of setPlayers) {
       this.players_[setPlayer.name] = new Player(setPlayer.name, setPlayer.options);
       this.initHand_(setPlayer.name, initHandNum);
     }
@@ -29,7 +27,7 @@ export default class Rule {
       for (let j = 0; j < initHandNum; j++) {
         this.players_[playerName].receive(this.deck_.draw());
       }
-    }  
+    }
   }
 
   /**
@@ -47,16 +45,7 @@ export default class Rule {
     throw new Error('Implement me');
   }
 
-  // not required??
-  bet(playerName, action, tip) {
-    throw new Error('Implement me');
-  }
-
   judge() {
-    throw new Error('Implement me');
-  }
-
-  gameset() {
     throw new Error('Implement me');
   }
 }
