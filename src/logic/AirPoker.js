@@ -26,12 +26,12 @@ export default class AirPocker extends Rule {
     const setDeck = {deckNum: 1, JockerNum: 0};
     const setPlayers = [];
     const field = {};
-    for (let i = 0; i < players.length; i++) {
+    for (const player of players) {
       setPlayers.push({
-        name: players[i],
+        name: player,
         options: {hasTips: 25, betTips: 0, action: null}
       });
-      field[players[i]] = null;
+      field[player] = null;
     }
     const initHandNum = Math.floor((setDeck.deckNum * 52 + setDeck.JockerNum) / 5 / players.length); // 5
     super(setDeck, setPlayers, initHandNum);
@@ -45,7 +45,6 @@ export default class AirPocker extends Rule {
     // set remainingCards
     NUMBERS.forEach((number) => {
       this.remainingCards[number] = [];
-      // this.remainingCards[number] = Object.values(SUITS);
       Object.keys(SUITS).forEach((k) => {
         this.remainingCards[number].push(SUITS[k]);
       }, this);
