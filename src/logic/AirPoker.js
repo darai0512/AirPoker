@@ -40,15 +40,15 @@ export default class AirPocker extends Rule {
     this.betTurn = players;
     this.round = 1;
     this.field = field; // field.jsは煩雑さ回避のため使わない方針に変更
-    this.remainingCards = {};
-
     // set remainingCards
-    NUMBERS.forEach((number) => {
-      this.remainingCards[number] = [];
-      Object.keys(SUITS).forEach((k) => {
-        this.remainingCards[number].push(SUITS[k]);
-      }, this);
-    }, this);
+    this.remainingCards = {};
+    for (let i = 0; i < setDeck.deckNum; i++) {
+      for (const num of NUMBERS) {
+        this.remainingCards[num] = [];
+        for (const suit of Object.keys(SUITS))
+          this.remainingCards[num].push(new Card(num, suit));
+      }
+    }
   }
 
   /*
@@ -284,26 +284,32 @@ export default class AirPocker extends Rule {
   /*
    * getCombinations_
    *   Returns an array of five numbers to be the arguement number by summing them.
+   * @TODO nestが深いが無くせそう
    *
    * @param  {Number} num
    * @return {Array}  combinations
    */
-  getCombinations_(num) {
+  getCombinations_(sum) {
     const combinations = [];
-    // @TODO remainingCardsでCardオブジェクトを扱う
-    // Card.numberで計算、このlogicはcodegolf用に保存
-    if (num > 5 && num < 65) {
-      for (let a = 1; a < num / 5; a++) {
-        const max2 = num - a;
-        for (let b = a; b <= max2 / 4; b++) {
-          const max3 = max2 - b;
-          for (let c = b; c <= max3 / 3; c++) {
-            const max4 = max3 - c;
-            for (let d = c; d <= max4 / 2; d++) {
-              const e = max4 - d;
-              if (e <= 13) {
-                combinations.push([a, b, c, d, e]);
-              }
+    if (sum < 6 || sum > 64)
+      return [];
+    const cards = Object.keys(this.remainingCards);
+    for (let a = 1; a < sum / 5; a++) {
+      if (cards.indexOf(a) < 0)
+        continue;
+      const max2 = sum - a;
+      for (let b = a; b <= max2 / 4; b++) {
+        if (cards.indexOf(b) < 0)
+          continue;
+        const max3 = max2 - b;
+        for (let c = b; c <= max3 / 3; c++) {
+          if (cards.indexOf(c) < 0)
+            continue;
+          const max4 = max3 - c;
+          for (let d = c; d <= max4 / 2; d++) {
+            const e = max4 - d;
+            if (cards.indexOf(d) > -1 && cards.indexOf(e) > -1) {
+              combinations.push([a, b, c, d, e]);
             }
           }
         }
@@ -390,7 +396,7 @@ export default class AirPocker extends Rule {
     let setSuit;
     if (!Object.keys(SUITS).some(suit => {
       setSuit = SUITS[suit];
-      return numbers.every(number => this.remainingCards[number].indexOf(setSuit) > -1);
+      return numbers.every(number => this.remainingCards[number].some(card => card.suit === setSuit));
     }, this)) {
       setSuit = null;
     }
