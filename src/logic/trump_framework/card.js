@@ -36,6 +36,7 @@ export class Card {
     this.suit = null;
     this.setNumber_(number);
     this.setSuit_(suit);
+    // this.image = `./Cards/${number}_${suit}.jpeg`;
   }
 
   setNumber_(number) {
