@@ -1,5 +1,4 @@
 import React from 'react';
-import Card from '../Card/Card';
 import Hand from '../Hand/Hand';
 import BetButton from '../Bet/BetButton';
 import Raise from '../Bet/Raise';
@@ -13,7 +12,7 @@ export default class App extends React.Component {
     super(props);
     const {airPoker} = props;
     this.state = {
-      hand: airPoker.findCandidates('You'),
+      hand: {sum: airPoker.findCandidates('You'), trump: []},
       remainingAir: airPoker.getRemainingAir(),
       round: airPoker.round,
       field: airPoker.field,
@@ -69,7 +68,7 @@ export default class App extends React.Component {
       const betNode = airPoker.actionCandidates('You').map((action) => {
         if (action === 'raise') {
           return (
-            <Raise bet={this.bet.bind(this)} key={action} maxRaise={maxRaise} npcBet={npcBetAir}/>
+            <Raise bet={this.bet.bind(this)} key={action} maxRaise={maxRaise} npcBet={npcBetAir} />
           );
         }
         return (
@@ -101,7 +100,10 @@ export default class App extends React.Component {
 
     this.setState({
       field: airPoker.field,
-      hand: airPoker.findCandidates('You'),
+      hand: {
+        sum: airPoker.findCandidates('You'),
+        trump: airPoker.getPokerCards(airPoker.field.You).cards
+      },
       phase: 'bet',
     });
   }
@@ -130,6 +132,7 @@ export default class App extends React.Component {
       });
     } else {
       const result = airPoker.judge();
+      // result.cards[name].numbersがカード
       airPoker.getTip(result.winner);
       const remainingAir = airPoker.getRemainingAir();
       let phase = 'card';
@@ -162,24 +165,18 @@ export default class App extends React.Component {
 
   render() {
     const {model, airPoker} = this.props;
-    const yourCardNode = this.state.hand.map((card, i) =>
-      (
-         <Card card={card} phase={this.state.phase} setCard={this.setCard.bind(this)} key={`${i  }-${  card}`} />
-      ));
-    const npcCardNode = this.state.hand.map((v, i) => (
-      <Card card="?" key={`${i  }-?`} />
-      ));
+    //  modelがrequireできる関数を提供, getPokerCardsを公開
     const bubbleNode = [];
     for (let i=0; i < this.state.bubbleNum; i++)
       bubbleNode.push(<Bubble key={`bubble-${  i}`} />);
     return (
       <div>
         <div className="status"><span className="npc">NPC</span> Air: {this.state.remainingAir[model.name]}</div>
-        <div className="hand npc">{npcCardNode}</div>
+        <Hand phase={this.state.phase} hand={this.state.hand} setCard={this.setCard.bind(this)} player='npc' key='npc-hand' />
         <button className={this.state.phase === 'card' ? "field" : "field card"} disabled>{this.state.field[model.name]}</button>
         <div className="guide">{this.navigate()}</div>
         <button className={this.state.phase === 'card' ? "field" : "field card"} disabled>{this.state.field.You}</button>
-        <div className="hand you">{yourCardNode}</div>
+        <Hand phase={this.state.phase} hand={this.state.hand} setCard={this.setCard.bind(this)} player='you' key='you-hand' />
         <div className="status"><span className="you">You</span> Air: {this.state.remainingAir.You}</div>
         {bubbleNode}
       </div>

@@ -61,20 +61,23 @@ span.you, span.npc {
   opacity: 0.8;
   cursor: pointer; }
 
+/*
 .button {
-  display: inline-block;
-  width: 80px;
-  padding: 5px;
-  border-radius: 4px;
-  background-color: #ffff4f;
-  text-decoration: none;
-  letter-spacing: 1px;
-  font-size: 1rem;
-  margin: 5px; }
+    display: inline-block;
+    width: 80px;
+    padding: 5px;
+    border-radius: 4px;
+    background-color: #ffff4f;
+    text-decoration: none;
+    letter-spacing: 1px;
+    font-size: 1rem;
+    margin: 5px;
+}
 
 .button:hover {
-  opacity: 0.7; }
-
+    opacity: 0.7;
+}
+*/
 .item {
   display: block;
   width: 40px;

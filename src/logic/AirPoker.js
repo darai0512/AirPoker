@@ -26,12 +26,12 @@ export default class AirPocker extends Rule {
     const setDeck = {deckNum: 1, JockerNum: 0};
     const setPlayers = [];
     const field = {};
-    for (let i = 0; i < players.length; i++) {
+    for (const player of players) {
       setPlayers.push({
-        name: players[i],
+        name: player,
         options: {hasTips: 25, betTips: 0, action: null}
       });
-      field[players[i]] = null;
+      field[player] = null;
     }
     const initHandNum = Math.floor((setDeck.deckNum * 52 + setDeck.JockerNum) / 5 / players.length); // 5
     super(setDeck, setPlayers, initHandNum);
@@ -40,16 +40,15 @@ export default class AirPocker extends Rule {
     this.betTurn = players;
     this.round = 1;
     this.field = field; // field.jsは煩雑さ回避のため使わない方針に変更
-    this.remainingCards = {};
-
     // set remainingCards
-    NUMBERS.forEach((number) => {
-      this.remainingCards[number] = [];
-      // this.remainingCards[number] = Object.values(SUITS);
-      Object.keys(SUITS).forEach((k) => {
-        this.remainingCards[number].push(SUITS[k]);
-      }, this);
-    }, this);
+    this.remainingCards = {};
+    for (let i = 0; i < setDeck.deckNum; i++) {
+      for (const num of NUMBERS) {
+        this.remainingCards[num] = [];
+        for (const suit of Object.keys(SUITS))
+          this.remainingCards[num].push(new Card(num, suit));
+      }
+    }
   }
 
   /*
@@ -228,40 +227,43 @@ export default class AirPocker extends Rule {
    * @return {Object} {winner: PlayerName, rank: rankName, cards: cards} - round winner
    **/
   judge() {
-    const result = {rank: {}, cards: {}, winner: ''};
+    const result = {rank: {}, cards: {}, winner: null};
     let maxPoint = 0;
     for (const name of this.betTurn) {
-      let player = {rank: null, numbers: [], suit: null, point: 0};
-      const rankCandidates = this.getCombinations_(this.field[name]); // combCandidates, ifの上へ
-      for (let i = 0; i < rankCandidates.length; i++) {
-        // @todo suitの余りがあるのか確認
-        let suit = null;
-        const numbers = rankCandidates[i];
-        let {name: rank, highCardPoint: point} = this.rankByNumbers_(numbers);
-        if (rank === 'Straight' ||
-          rank === 'HighCard' ||
-          rank === 'RoyalStraight') {
-          if (suit = this.getFlashSuit_(numbers)) {
-            rank = rank === 'HighCard' ? 'Flush' : `${rank  }Flush`;
-          }
-        }
-        point += RANK_POINTS[rank];
-        if (point > player.point) {
-          player.rank = rank;
-          player.point = point;
-          player.numbers = numbers;
-          player.suit = suit;
-        }
-      }
-      result.rank[name] = player.rank;
-      result.cards[name] = {numbers: player.numbers, suit: player.suit};
-      if (maxPoint <= player.point) {
-        maxPoint = player.point;
+      const pokerCards = this.getPokerCards(this.field[name]);
+      result.rank[name] = pokerCards.rank;
+      result.cards[name] = pokerCards.cards;
+      // 後攻有利なのでdrawなら先攻勝利
+      if (pokerCards.point > maxPoint) {
+        maxPoint = pokerCards.point;
         result.winner = name;
       }
     }
+    // @TODO disaster
     // {cards: result.cards, overlap: result.disaster} = this.useCard_(result.cards);
     return result;
+  }
+
+  getPokerCards(FieldNum) {
+    const pokerCards = {rank: null, point: 0, cards: []};
+    const combinations = this.getCombinations_(FieldNum);
+    for (const numbers of combinations) {
+      let suit = null; // @TODO
+      let {name: rank, highCardPoint} = this.rankByNumbers_(numbers);
+      if ((rank === 'Straight' ||
+        rank === 'HighCard' ||
+        rank === 'RoyalStraight') && this.getFlashSuit_(numbers)) {
+        suit = this.getFlashSuit_(numbers);
+        rank = rank === 'HighCard' ? 'Flush' : `${rank  }Flush`;
+      }
+      const point = RANK_POINTS[rank] + highCardPoint;
+      if (point > pokerCards.point) {
+        pokerCards.point = point;
+        pokerCards.rank = rank;
+        pokerCards.cards = numbers;
+      }
+    }
+    return pokerCards;
   }
 
   getTip(winner, disaster) {
@@ -282,24 +284,32 @@ export default class AirPocker extends Rule {
   /*
    * getCombinations_
    *   Returns an array of five numbers to be the arguement number by summing them.
+   * @TODO nestが深いが無くせそう
    *
    * @param  {Number} num
    * @return {Array}  combinations
    */
-  getCombinations_(num) {
+  getCombinations_(sum) {
     const combinations = [];
-    if (num > 5 && num < 65) {
-      for (let a = 1; a < num / 5; a++) {
-        const max2 = num - a;
-        for (let b = a; b <= max2 / 4; b++) {
-          const max3 = max2 - b;
-          for (let c = b; c <= max3 / 3; c++) {
-            const max4 = max3 - c;
-            for (let d = c; d <= max4 / 2; d++) {
-              const e = max4 - d;
-              if (e <= 13) {
-                combinations.push([a, b, c, d, e]);
-              }
+    if (sum < 6 || sum > 64)
+      return [];
+    const cards = Object.keys(this.remainingCards);
+    for (let a = 1; a < sum / 5; a++) {
+      if (cards.indexOf(a) < 0)
+        continue;
+      const max2 = sum - a;
+      for (let b = a; b <= max2 / 4; b++) {
+        if (cards.indexOf(b) < 0)
+          continue;
+        const max3 = max2 - b;
+        for (let c = b; c <= max3 / 3; c++) {
+          if (cards.indexOf(c) < 0)
+            continue;
+          const max4 = max3 - c;
+          for (let d = c; d <= max4 / 2; d++) {
+            const e = max4 - d;
+            if (cards.indexOf(d) > -1 && cards.indexOf(e) > -1) {
+              combinations.push([a, b, c, d, e]);
             }
           }
         }
@@ -386,7 +396,7 @@ export default class AirPocker extends Rule {
     let setSuit;
     if (!Object.keys(SUITS).some(suit => {
       setSuit = SUITS[suit];
-      return numbers.every(number => this.remainingCards[number].indexOf(setSuit) > -1);
+      return numbers.every(number => this.remainingCards[number].some(card => card.suit === setSuit));
     }, this)) {
       setSuit = null;
     }
@@ -418,6 +428,7 @@ export default class AirPocker extends Rule {
    * @param {Object} card - cardオブジェクト
    * @retrun {Object} card - cardオブジェクト
    */
+/*
   useCard_(card) {
     if (typeof card.suit === 'undefined') {
       card.suit = SUITS[this.remainingCards[card.number].shift()];
@@ -425,7 +436,7 @@ export default class AirPocker extends Rule {
       const remainingSuits = this.remainingCards[card.number];
       remainingSuits.splice(remainingSuits.indexOf(card.suit), 1);
     }
-    return cards;
+    return null;
   }
-
+  */
 }

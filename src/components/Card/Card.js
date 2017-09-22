@@ -10,9 +10,14 @@ class Card extends React.Component {
   }
 
   render() {
-    if (this.props.phase !== 'card' || this.props.card === '?') {
+    if (this.props.card === '?') {
       return (
-        <button className="card" disabled>{this.props.card}</button>
+        <button className="card" disabled>?</button>
+      );
+    } else if (this.props.phase !== 'card') {
+      // @TODO trump img
+      return (
+        <button className="card" type="button">{this.props.card}</button>
       );
     } 
     return (
